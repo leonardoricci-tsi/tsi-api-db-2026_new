@@ -64,4 +64,91 @@ router.put("/:id", async (req: Request, res: Response) => {
 
 });
 
+router.get("/:id", async (req: Request, res: Response) => {
+    const id = Number(req.params.id);
+    
+    if(Number.isNaN(id)) {
+        return res.status(400).json({
+            erro : "ID Inválido."
+        });
+    }
+
+    const livro = await prisma.livro.findUnique({
+        where: {id},
+        include: {
+            genero: true
+        }
+    });
+
+    if(!livro) {
+        return res.status(404).json({
+            erro: "Livro não encontrado"
+        });
+    }
+
+    res.json(livro);
+});
+
+router.delete("/:id", async(req: Request, res:Response) => {
+    const id = Number(req.params.id);
+    
+    if(Number.isNaN(id)) {
+        return res.status(400).json({
+            erro : "ID Inválido."
+        });
+    }
+
+    const livro = await prisma.livro.findUnique({
+        where: {id}
+    });
+
+    if(!livro) {
+        return res.status(404).json({
+            erro: "Livro não encontrado"
+        })
+    }
+
+    await prisma.livro.delete({
+        where: {id}
+    });
+
+    res.status(204).send();
+});
+
+router.patch("/:id", async (req: Request, res:Response) => {
+    const id = Number(req.params.id);
+
+    const {titulo, generoId} = req.body;
+    
+    if(Number.isNaN(id)) {
+        return res.status(400).json({
+            erro : "ID Inválido."
+        });
+    }
+
+    const livro = await prisma.livro.findUnique({
+        where: {id}
+    });
+
+    if(!livro) {
+        return res.status(404).json({
+            erro: "Livro não encontrado"
+        })
+    }
+
+    const livroAtualizado = await prisma.livro.update({
+        where: {id},
+        data: {
+            titulo: titulo ? titulo : undefined,
+            generoId: generoId ? Number(generoId) : undefined
+        },
+        include: {
+            genero: true
+        }
+    });
+
+    res.json(livroAtualizado);
+
+});
+
 export default router;

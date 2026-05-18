@@ -10,3 +10,26 @@ Content-Type: application/json
     "titulo": "E não sobrou nenhum",
     "generoId": 2
 }
+
+###
+PUT {{url}}/3
+Content-Type: application/json
+
+{
+    "titulo" : "O caso dos dez negrinhos",
+    "generoId": 2
+}
+
+###
+GET {{url}}/2
+
+###
+DELETE {{url}}/2
+
+###
+PATCH {{url}}/3
+Content-Type: application/json
+
+{
+    "generoId": "E não sobrou nenhum."
+}
