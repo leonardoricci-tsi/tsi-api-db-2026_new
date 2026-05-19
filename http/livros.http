@@ -7,8 +7,9 @@ POST {{url}}
 Content-Type: application/json
 
 {
-    "titulo": "E não sobrou nenhum",
-    "generoId": 2
+    "titulo": "Fundamentos da Arquitetura de Software",
+    "generoId": 3,
+    "autoresIds": [2,3]
 }
 
 ###
@@ -32,4 +33,12 @@ Content-Type: application/json
 
 {
     "generoId": "E não sobrou nenhum."
+}
+
+###
+POST {{url}}/1/autores
+Content-Type: application/json
+
+{
+    "autoresIds": [4]
 }

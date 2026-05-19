@@ -6,7 +6,8 @@ const router = Router();
 router.get("/", async (req: Request, res: Response) => {
     const livros = await prisma.livro.findMany({
         include: {
-            genero: true
+            genero: true,
+            autores: true
         }
     });
 
@@ -14,7 +15,7 @@ router.get("/", async (req: Request, res: Response) => {
 });
 
 router.post("/", async (req: Request, res: Response) => {
-    const  {titulo, generoId} = req.body;
+    const  {titulo, generoId, autoresIds} = req.body;
 
     if(!titulo || !generoId) {
         return res.status(400).json({
@@ -32,13 +33,31 @@ router.post("/", async (req: Request, res: Response) => {
         })
     }
 
+    const autores = await prisma.autor.findMany({
+        where: {
+            id: {
+                in: autoresIds
+            }
+        }
+    });
+
+    if(autores.length !== autoresIds.length) {
+        return res.status(400).json({
+            erro : "Um ou mais autores não estão cadastrados"
+        })
+    }
+
     const livro = await prisma.livro.create({
         data: {
             titulo,
-            generoId: Number(generoId)
+            generoId: Number(generoId),
+            autores: {
+                connect: autoresIds.map((id:Number) => ({id}))
+            }
         },
         include: {
-            genero: true
+            genero: true,
+            autores: true
         }
     });
 
@@ -149,6 +168,53 @@ router.patch("/:id", async (req: Request, res:Response) => {
 
     res.json(livroAtualizado);
 
+});
+
+router.post("/:id/autores", async (req: Request, res: Response) => {
+    const id = Number(req.params.id);
+    const { autoresIds } = req.body;
+
+    const livro = await prisma.livro.findUnique({
+        where: {
+            id: id
+        }
+    });
+
+    if(!livro) {
+        return res.status(404).json({
+            error: "Livro não encontrado"
+        })
+    }
+
+    const autores = await prisma.autor.findMany({
+        where: {
+            id: {
+                in: autoresIds
+            }
+        }
+    });
+
+    if(autores.length !== autoresIds.length) {
+        return res.status(400).json({
+            error: "Um ou mais autores não encontrados."
+        });
+    }
+
+    const livroAtualizado = await prisma.livro.update({
+        where: {
+            id: id
+        },
+        data: {
+            autores: {
+                connect: autoresIds.map((idAutor: number) => ({id: idAutor}))
+            }
+        },
+        include: {
+            genero: true,
+            autores: true
+        }
+    });
+    res.json(livroAtualizado);
 });
 
 export default router;

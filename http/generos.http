@@ -10,7 +10,8 @@ POST {{url}}
 Content-Type: application/json
 
 {
-    "nome": "Policial"
+    //"nome": "Policial"
+    "nome": "Computação"
 }
 
 ###
